@@ -1,0 +1,156 @@
+basePath: /api
+definitions:
+  domain.AuthResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/domain.User'
+    type: object
+  domain.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  domain.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  domain.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      password:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.VerifyCodeRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    type: object
+host: localhost:8090
+info:
+  contact: {}
+  description: This is the Auth Service API for user authentication
+  title: Auth Service API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login a user and send verification code to email
+      parameters:
+      - description: User login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/domain.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful and verification code sent
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      summary: Login a user
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout a user (client-side token removal)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout a user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user and send verification code to email
+      parameters:
+      - description: User registration information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created and verification code sent
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body or registration error
+          schema:
+            type: string
+      summary: Register a new user
+      tags:
+      - auth
+  /auth/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verify the authentication code sent to user's email
+      parameters:
+      - description: Verification code information
+        in: body
+        name: verification
+        required: true
+        schema:
+          $ref: '#/definitions/domain.VerifyCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Authentication successful with JWT token
+          schema:
+            $ref: '#/definitions/domain.AuthResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "401":
+          description: Invalid verification code
+          schema:
+            type: string
+      summary: Verify authentication code
+      tags:
+      - auth
+swagger: "2.0"
